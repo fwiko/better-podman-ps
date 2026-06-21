@@ -3,21 +3,20 @@ A replacement for the default podman-ps that tries really hard to fit within
 your terminal width.
 
 > [!NOTE]
-> This is a fork of [Mikescher/better-docker-ps](https://github.com/Mikescher/better-docker-ps),
+> This is a fork of
+> [Mikescher/better-docker-ps](https://github.com/Mikescher/better-docker-ps),
 > migrated to provide the same functionality for `podman ps` instead of
 > `docker ps`.
 
 > [!WARNING]
-> Mac OS support has been removed as I do not have the ability to confidently test.
-
-> [!IMPORTANT]
-> Most of the below README content remains unchanged.
+> Mac OS support has been removed as I do not have the ability to
+> confidently test.
 
 ![](readme.d/main.png)
 
 ## Rationale
 
-By default, my `docker ps` output is really wide and every line wraps around
+By default, my `podman ps` output is really wide and every line wraps around
 into three. This (obviously) breaks the tabular display and makes everything  
 chaotic. *(This gets especially bad if one container has multiple port mappings,
 and they are all displayed in a single row)* It doesn't look like we'll get
@@ -27,7 +26,7 @@ own drop-in replacement.
 
 ## Features
 
- - All normal commandline flags/options from docker-ps work *(almost)* the same.
+ - All normal commandline flags/options from podman-ps work *(almost)* the same.
  - Write multi-value data (like multiple port mappings, multiple networks, etc.)
    into multiple lines instead of concatenating them.
  - Add color to the STATE and STATUS column (green / yellow / red).
@@ -36,7 +35,7 @@ own drop-in replacement.
  - sort the output with the `--sort` argument
  - Enter watch mode with the `--watch` argument
 
-More Changes from default docker-ps:
+More Changes from default podman-ps:
  - Show (by default) the container-cmd without arguments.
  - Show the ImageName (by default) without the registry prefix, and split
    ImageName and ImageTag into two columns.
@@ -45,45 +44,45 @@ More Changes from default docker-ps:
    `{{.ImageName}`, `{{.ImageTag}`, `{{.Tag}`, `{{.ImageRegistry}`,
    `{{.Registry}`, `{{.ShortCommand}`, `{{.LabelKeys}`, `{{.IP}`, `{{.User}`  
  - The `{{.User}}` column shows the user a container runs as (`Config.User`).
-   Because this is not part of the cheaper container-list endpoint, dops only
+   Because this is not part of the cheaper container-list endpoint, pops only
    queries the (slower) container-inspect endpoint when this column is used.
  - Added options to control the color-output, the used socket, the time-zone and
-   time-format, etc (see `./dops --help`)
+   time-format, etc (see `./pops --help`)
 
 ## Getting started
 
 ### Generic Linux (e.g. Debian/Fedora/...)
  - Download the latest binary from the
-   [releases page](https://github.com/Mikescher/better-docker-ps/releases) and
-   put it into your PATH (eg /usr/local/bin)
- - You can also use the following one-liner (afterwards you can use the `dops`
+   [releases page](https://github.com/fwiko/better-podman-ps/releases) and put
+   it into your PATH (eg /usr/local/bin)
+ - You can also use the following one-liner (afterwards you can use the `pops`
    command everywhere):
 ```
-sudo wget "https://github.com/Mikescher/better-docker-ps/releases/latest/download/dops_linux-amd64-static" -O "/usr/local/bin/dops" && sudo chmod +x "/usr/local/bin/dops"
+sudo wget "https://github.com/fwiko/better-podman-ps/releases/latest/download/pops_linux-amd64-static" -O "/usr/local/bin/pops" && sudo chmod +x "/usr/local/bin/pops"
 ```
 
 ### ArchLinux
  - Alternatively you can use one of the AUR packages (under Arch Linux):
-    * https://aur.archlinux.org/packages/dops-bin (installs `dops` into your
+    * https://aur.archlinux.org/packages/pops-bin (installs `pops` into your
       PATH)
-    * https://aur.archlinux.org/packages/dops-git (installs `dops` into your
+    * https://aur.archlinux.org/packages/pops-git (installs `pops` into your
       PATH)
  - or the homebrew package:
-    * `brew tap mikescher/tap && brew install dops`
+    * `brew tap mikescher/tap && brew install pops`
 
 ### Optional steps
- - Alias the docker ps command to `dops` (see
+ - Alias the podman ps command to `pops` (see
    [section below](#usage-as-drop-in-replacement))
 
 ### Building from source
 
-If you want to build `dops` from source, you need to have Go installed.
+If you want to build `pops` from source, you need to have Go installed.
 
 ```sh
-git clone https://github.com/Mikescher/better-docker-ps.git
-cd better-docker-ps
+git clone https://github.com/fwiko/better-podman-ps.git
+cd better-podman-ps
 make build
-mv _out/dops "$HOME/.local/bin/"
+mv _out/pops "$HOME/.local/bin/"
 ```
 
 ## Screenshots
@@ -105,35 +104,35 @@ Output on a small terminal
 
 ## Usage as drop-in replacement
 
-You can fully replace docker ps by creating a shell function in your `.bashrc` /
+You can fully replace podman ps by creating a shell function in your `.bashrc` /
 `.zshrc`...
 
 ~~~sh
-docker() {
-  case $1 in
-    ps)
-      shift
-      command dops "$@"
-      ;;
-    *)
-      command docker "$@";;
-  esac
-}
+podman() { 
+  case $1 in 
+    ps) 
+      shift 
+      command pops "$@" 
+      ;; 
+    *) 
+      command podman "$@";; 
+  esac 
+} 
 ~~~
 
-This will alias every call to `docker ps ...` with `dops ...` (be sure to have
-the dops binary in your PATH).
+This will alias every call to `podman ps ...` with `pops ...` (be sure to have
+the pops binary in your PATH).
 
 If you are using the fish-shell you have to create a (similar) function:
 
 ~~~fish
-function docker
+function podman
     if test -n "$argv[1]"
         switch $argv[1]
             case ps
-                dops $argv[2..-1]
+                pops $argv[2..-1]
             case '*'
-                command docker $argv[1..-1]
+                command podman $argv[1..-1]
         end
     end
 end
@@ -141,10 +140,10 @@ end
 
 ## Changing the output format
 
-By default dops tries to be "intelligent" and find the best output format for
+By default pops tries to be "intelligent" and find the best output format for
 your terminal width. The current output formats (= table columns) are defined in
 the
-[options.go](https://github.com/Mikescher/better-docker-ps/blob/master/cli/options.go).
+[options.go](https://github.com/fwiko/better-podman-ps/blob/master/cli/options.go).
 The first format that fits in your terminal width is used.
 
 But you can also override it by supplying a `--format` parameter. If you supply
@@ -174,35 +173,35 @@ The following functions are defined in these templates (plus the
 
 Examples:
 ~~~~
-$ ./dops --format "table {{.ID}}"
-$ ./dops --format "table {{.ID}}\\t{{.Names}}\\t{{.State}}"
+$ ./pops --format "table {{.ID}}"
+$ ./pops --format "table {{.ID}}\\t{{.Names}}\\t{{.State}}"
 
-$ ./dops --format "idlist"
+$ ./pops --format "idlist"
 
-$ ./dops --format "table {{.ID}}\\t{{.Names}}\\t{{.State}}"  --format "table {{.ID}}\\t{{.Names}}" --format "table {{.ID}}"
+$ ./pops --format "table {{.ID}}\\t{{.Names}}\\t{{.State}}"  --format "table {{.ID}}\\t{{.Names}}" --format "table {{.ID}}"
 
-$ ./dops --format "ID: {{.ID}}; Name: {{.Names}}"
+$ ./pops --format "ID: {{.ID}}; Name: {{.Names}}"
 
-$ ./dops -aq
+$ ./pops -aq
 
-$ ./dops --sort "IP" --sort-direction "ASC"
+$ ./pops --sort "IP" --sort-direction "ASC"
 
-$ ./dops --format "table {{.ID}}\\tCMD:{{ printf \"%.15s\" .Command }}"
-$ ./dops --format "table {{.ID}}\\tNAME:{{ printf \"%.10s\" (join .Names \";\") }}"
+$ ./pops --format "table {{.ID}}\\tCMD:{{ printf \"%.15s\" .Command }}"
+$ ./pops --format "table {{.ID}}\\tNAME:{{ printf \"%.10s\" (join .Names \";\") }}"
 
 ~~~~
 
 ## Persistant configuration
 
 You can also configure some/most of the options via a configuration file.  
-Place a TOML formatted file in `$HOME/.config/dops.conf` /  
-`$XDG_CONFIG_HOME/dops.conf`. ( `~/Library/Application Support/dops.conf` is
+Place a TOML formatted file in `$HOME/.config/pops.conf` /  
+`$XDG_CONFIG_HOME/pops.conf`. ( `~/Library/Application Support/pops.conf` is
 also supported under macOS )
 
 The first existing file from the following locations is used:
- - `$XDG_CONFIG_HOME/dops.conf` (or the platform default, e.g.
-   `~/Library/Application Support/dops.conf` under macOS)
- - `~/.config/dops.conf`
+ - `$XDG_CONFIG_HOME/pops.conf` (or the platform default, e.g.
+   `~/Library/Application Support/pops.conf` under macOS)
+ - `~/.config/pops.conf`
 
 The following keys are supported:
  - verbose
@@ -242,13 +241,13 @@ header = "simple"
 
 ## Manual
 
-Output of `./dops --help`:
+Output of `./pops --help`:
 
 ~~~~~~
-better-docker-ps
+better-podman-ps
 
 Usage:
-  dops [OPTIONS]                     List docker container
+  pops [OPTIONS]                     List podman container
 
 Options (default):
   -h, --help                         Show this screen.
@@ -263,19 +262,19 @@ Options (default):
   --quiet , -q                       Only display container IDs
   --size , -s                        Display total file sizes
 
-Options (extra | do not exist in `docker ps`):
+Options (extra | do not exist in `podman ps`):
   --silent                           Do not print any output
   --timezone                         Specify the timezone for date outputs
   --color <true|false>               Enable/Disable terminal color output
   --no-color                         Disable terminal color output
-  --socket <filepath>                Specify the docker socket location (Default: `auto` - which calls the docker cli to determine the socket)
+  --socket <filepath>                Specify the podman socket location (Default: `auto`
   --timeformat <go-time-fmt>         Specify the datetime output format (golang syntax)
   --no-header                        Do not print the table header
   --simple-header                    Do not print the lines under the header
   --format <fmt>                     You can specify multiple formats and the first one that fits your terminal widt will be used
   --sort <col>                       Sort output by a specific column, use the same identifier as in --format, only useful together with table formats 
   --sort-direction <ASC|DESC>        The sort direction, only useful in combination with --sort
-  --watch <interval>, -w <interval>  Automatically refresh output periodically (interval is optional, default: 2s) 
+  --watch <interval>                 Automatically refresh output periodically (interval is optional, default: 2s)
 
 Available --format keys (default):
   {{.ID}}                            Container ID
@@ -283,7 +282,7 @@ Available --format keys (default):
   {{.Command}}                       Quoted command
   {{.CreatedAt}}                     Time when the container was created.
   {{.RunningFor}}                    Elapsed time since the container was started.
-  {{.Ports}}                         Published ports. ([!] differs from docker CLI, these are only the published ports)
+  {{.Ports}}                         Published ports. ([!] differs from podman CLI, these are only the published ports)
   {{.State}}                         Container status
   {{.Status}}                        Container status with details
   {{.Size}}                          Container disk size.
@@ -293,18 +292,18 @@ Available --format keys (default):
   {{.Mounts}}                        Names of the volumes mounted in this container.
   {{.Networks}}                      Names of the networks attached to this container.
 
-Available --format keys (extra | do not exist in `docker ps`):
-  {{.ImageName}}                     Image ID (without tag and registry)
-  {{.ImageTag}}, {{.Tag}}            Image Tag
-  {{.ImageRegistry}}, {{.Registry}}  Image Registry
-  {{.ShortCommand}}                  Command without arguments
-  {{.LabelKeys}}                     All labels assigned to the container (keys only)
+Available --format keys (extra | do not exist in `podman ps`):
+  {{.ImageName}                      Image ID (without tag and registry)
+  {{.ImageTag}, {{.Tag}              Image Tag
+  {{.ImageRegistry}, {{.Registry}    Image Registry
+  {{.ShortCommand}                   Command without arguments
+  {{.LabelKeys}                      All labels assigned to the container (keys only)
   {{.ShortPublishedPorts}}           Published ports, shorter output than {{.Ports}}
   {{.LongPublishedPorts}}            Published ports, full output with IP
   {{.ExposedPorts}}                  Exposed ports
-  {{.PublishedPorts}}                Published ports
   {{.NotPublishedPorts}}             Exposed but not published ports
+  {{.PublishedPorts}}                Published ports
   {{.PublicPorts}}                   Only the public part of published ports
-  {{.IP}}                            Internal IP Address
-  {{.User}}                          User the container runs as (queried via container-inspect)
+  {{.IP}                             Internal IP Address
+  {{.User}                           User the container runs as (queried via container-inspect)
 ~~~~~~
