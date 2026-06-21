@@ -11,7 +11,7 @@ your terminal width.
 > Mac OS support has been removed as I do not have the ability to confidently test.
 
 > [!IMPORTANT]
-> The below README contents remains unchanged.
+> Most of the below README content remains unchanged.
 
 ![](readme.d/main.png)
 
