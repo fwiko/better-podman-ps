@@ -6,7 +6,7 @@ your terminal width.
 > This is a fork of
 > [Mikescher/better-docker-ps](https://github.com/Mikescher/better-docker-ps),
 > migrated to provide the same functionality for `podman ps` instead of
-> `docker ps`.
+> `docker ps`. You could alternatively just set a persistent config for dops to route to the Podman socket and create an alias (pops -> dops).
 
 > [!WARNING]
 > Mac OS support has been removed as I do not have the ability to
